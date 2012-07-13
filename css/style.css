@@ -3,6 +3,7 @@ body
 	background-image: url(../img/grass.jpg);
 	background-attachment: fixed;
 	background-repeat: repeat;
+    background-size: 250px;
 	padding-top: 60px;
 }
 
