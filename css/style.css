@@ -1,0 +1,23 @@
+body
+{
+	background-image: url(../img/grass.jpg);
+	background-attachment: fixed;
+	background-repeat: repeat;
+	padding-top: 60px;
+}
+
+div#past_conditions th { width: 20%; }
+
+div#scheduler_options th { width: 14%; }
+
+.well { opacity: 0.95; }
+
+@media (max-width: 767px)
+{
+	body { padding-top: 10px; }
+}
+
+@media (min-width: 768px)
+{
+	span.hidden-phone { display: inline; }
+}
