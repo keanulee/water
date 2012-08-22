@@ -6,6 +6,7 @@ class Device
 	private $ipaddress;
 	private $port;
 	private $amount_per_min;
+	private $num_zones;
 	private $status;
 	
 	//authenticates with device and gets its status. opens database
@@ -15,6 +16,7 @@ class Device
 		$this->ipaddress = $ipaddress;
 		$this->port = $port;
 		$this->amount_per_min = 0.635;
+		$this->num_zones = 2;
 		
         $ch = curl_init(); 
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); 
@@ -121,9 +123,19 @@ class Device
 		return 0;
 	}
 	
+	public function getTimeLeft() {
+		$result = $this->db->arrayQuery('SELECT date,time,duration FROM water_log ORDER BY date DESC,time DESC LIMIT 1;');
+		foreach ($result as $row) {
+			$start_time = mktime((int)($row["time"]/100), $row["time"]%100, 0);
+			$end_time = $start_time + $row["duration"]*60*$this->num_zones;
+			return (int)(($end_time-time())/60);
+		}
+		return 0;
+	}
+	
 	public function addToWaterLog($start_time,$duration)
 	{
-		$end_time = $start_time + $duration*60;
+		$end_time = $start_time + $duration*60*$this->num_zones;
 		
 		if (date("Ymd",$end_time) > date('Ymd',$start_time)) {
 			$new_day = mktime(0, 0, 0, date("n",$end_time), date("d",$end_time), date("Y",$end_time));
@@ -141,10 +153,9 @@ class Device
 		$result = $this->db->arrayQuery('SELECT * FROM water_log WHERE date = '.date("Ymd").';');
 		foreach ($result as $row) {
 			$start_time = mktime((int)($row["time"]/100), $row["time"]%100, 0);
-			$end_time = $start_time + $row["duration"]*60;
+			$end_time = $start_time + $row["duration"]*60*$this->num_zones;
 			if ($end_time > time()) {
-				$duration = (int)((time()-$start_time)/60);
-				if (!$this->db->queryExec('UPDATE water_log SET duration = '.$duration.' WHERE date = '.date("Ymd").' AND time = '.$row["time"].';',$error)) die($$error);
+				if (!$this->db->queryExec('DELETE FROM water_log WHERE date = '.$row["date"].' AND time = '.$row["time"].';',$error)) die($error);
 			}
 		}
 	}

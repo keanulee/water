@@ -99,7 +99,7 @@ $weather = new Weather($location,$api_key);
 			<span class="label label-success">Ready</span>
 			<br /><br />
 
-			<input type="number" name="single_duration" value="<?php echo $scheduler->getSetting('single_duration') ?>" min="0" class="input-mini" /> mins<br />
+			<input type="number" name="single_duration" value="<?php echo $scheduler->getSetting('single_duration'); ?>" min="0" class="input-mini" /> mins (each zone)<br />
 			<input type="submit" name="start" value="Water Now" class="btn btn-success" />
 
 
@@ -107,7 +107,7 @@ $weather = new Weather($location,$api_key);
 			<span class="label label-info"><?php echo $device->getStatus(); ?></span>
 			<br /><br />
 
-			<input type="number" name="single_duration" value="<?php echo $scheduler->getSetting('single_duration') ?>" min="0" disabled="disabled" class="input-mini" /> mins<br />
+			<input type="number" name="single_duration" value="<?php echo $device->getTimeLeft(); ?>" min="0" disabled="disabled" class="input-mini" /> mins left<br />
 			<input type="submit" name="stop" value="Stop Watering" class="btn btn-danger" />
 
 
@@ -163,7 +163,7 @@ $weather = new Weather($location,$api_key);
 		<input type="time" name="time" value="<?php echo $hour.":".$minute ?>" class="input-small" />
 		for  
 		<input type="number" name="duration" value="<?php echo $scheduler->getSetting('duration') ?>" min="0" class="input-mini" />
-		mins
+		mins (each zone)
 		<br /><br />
 
 		<input type="checkbox" name="past_rain" id="past_rain" <?php if ($scheduler->getSetting('past_rain')) echo 'checked="checked" ' ?> />
