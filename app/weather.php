@@ -120,7 +120,7 @@ class Weather
 	
 	public function didRainAmount($days, $amount)
 	{
-		for ($i = $days; $i > 0; $i--)
+		for ($i = 0; $i < $days; $i--)
 		{
 			$date = date("Ymd",time()-(60*60*24*$i));
 			$amount -= $this->getRainAmount($date);
