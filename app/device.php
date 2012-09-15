@@ -128,7 +128,7 @@ class Device
 		foreach ($result as $row) {
 			$start_time = mktime((int)($row["time"]/100), $row["time"]%100, 0);
 			$end_time = $start_time + $row["duration"]*60*$this->num_zones;
-			return (int)(($end_time-time())/60);
+			return (int)(($end_time-time())/60)+1;
 		}
 		return 0;
 	}

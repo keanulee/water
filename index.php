@@ -56,6 +56,9 @@ $weather = new Weather($location,$api_key);
 			<br />
 			<?php echo $weather->getWeatherDesc(date("Ymd",time() + (60*60*24))); ?><br />
 			<?php echo $weather->getTemperature(date("Ymd",time() + (60*60*24))); ?>&deg; C<br />
+			<br />
+			
+			<a href="http://keanulee.com/water/cron.php?update_weather=true">Update Weather</a>
 			</div>
 	</div>
 	<div id="past_conditions" class="span6">
