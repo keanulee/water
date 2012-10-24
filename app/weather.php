@@ -40,12 +40,16 @@ class Weather
 		$result = curl_exec($ch); // Getting jSON result string
 		if ($result) $result = json_decode($result);
 		
+		if (empty($result->data->weather)) return false;
+		
 		$current_condition = $result->data->current_condition[0];
 		if (!$this->db->queryExec('UPDATE current_condition SET precipMM = "'.$current_condition->precipMM.'", temp_C = "'.$current_condition->temp_C.'", weatherDesc = "'.$current_condition->weatherDesc[0]->value.'", weatherCode = "'.$current_condition->weatherCode.'", weatherIconUrl = "'.$current_condition->weatherIconUrl[0]->value.'";',$error)) die($error);
 		
 		foreach ($result->data->weather as $forecast) {
 			if (!$this->db->queryExec('REPLACE INTO weather_log VALUES ("'.str_replace("-", "", $forecast->date).'", "'.$forecast->precipMM.'", "'.$forecast->tempMaxC.'", "'.$forecast->weatherDesc[0]->value.'", "'.$forecast->weatherCode.'", "'.$forecast->weatherIconUrl[0]->value.'");',$error)) die($error);
-		}	
+		}
+		
+		return true;
 	}
 	
 	public function getWeatherIconUrl($date = 0)
