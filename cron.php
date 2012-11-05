@@ -20,7 +20,7 @@ $status = $device->getStatus();
 echo $status[0];
 
 //only print details and update weather every hour
-if (date("i") < 10 || $_GET['update_weather']) {
+if (date("i") < 5 || $_GET['update_weather']) {
 	echo "\t";
 	
 	if ($scheduler->getNextRunTime()) {
