@@ -18,22 +18,31 @@ class Device
 		$this->amount_per_min = 0.635;
 		$this->num_zones = 2;
 		
-        $ch = curl_init(); 
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); 
+		$attempts = 3;
+		for ($i=0; $i<$attempts; $i++)
+		{
+			$ch = curl_init(); 
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); 
 
-        curl_setopt($ch, CURLOPT_URL, 'http://'.$this->ipaddress.':'.$this->port.'/ergetcfg.cgi?lu=admin&lp=pw');
-        curl_exec($ch); 
+			curl_setopt($ch, CURLOPT_URL, 'http://'.$this->ipaddress.':'.$this->port.'/ergetcfg.cgi?lu=admin&lp=pw');
+			curl_exec($ch); 
 
-        curl_setopt($ch, CURLOPT_URL, 'http://'.$this->ipaddress.':'.$this->port.'/result.cgi?xs'); 
-        $output = curl_exec($ch);
-		
-		preg_match('/os: .. <br>/', $output, $matches);
-		if ($matches[0]) {
-			$status = $matches[0][4].$matches[0][5];
-			if ($status == "BZ") $this->status = "Currently Watering";
-			else if ($status == "WT") $this->status = "About to water";
-			else if ($status == "RD") $this->status = "Ready";
-			else $this->status = "Unknown";
+			curl_setopt($ch, CURLOPT_URL, 'http://'.$this->ipaddress.':'.$this->port.'/result.cgi?xs'); 
+			$output = curl_exec($ch);
+
+			preg_match('/os: .. <br>/', $output, $matches);
+			if ($matches[0]) {
+				$status = $matches[0][4].$matches[0][5];
+				if ($status == "BZ") $this->status = "Currently Watering";
+				else if ($status == "WT") $this->status = "About to water";
+				else if ($status == "RD") $this->status = "Ready";
+				else $this->status = "Unknown";
+
+				break;
+			}
+			else if ($i == ($attempts-1)) {
+				$this->status = "No connection";
+			}
 		}
 		
         curl_close($ch);
