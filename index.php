@@ -58,7 +58,7 @@ $weather = new Weather($location,$api_key);
 			<?php echo $weather->getTemperature(date("Ymd",time() + (60*60*24))); ?>&deg; C<br />
 			<br />
 			
-			<a href="http://keanulee.com/water/cron.php?update_weather=true">Update Weather</a>
+			<a href="#" onclick="$(this).html('Please wait...');$.get('http://keanulee.com/water/cron.php?update_weather=true', function(data){location.reload()});">Update Weather</a>
 			</div>
 	</div>
 	<div id="past_conditions" class="span6">
