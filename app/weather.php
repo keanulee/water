@@ -9,7 +9,7 @@ class Weather
 	public function __construct($location,$api_key)
 	{
 		$this->db = new SQLiteDatabase('db/data.db');
-		$this->source_url = "http://free.worldweatheronline.com/feed/weather.ashx?format=json&num_of_days=5&q=".$location."&key=".$api_key;
+		$this->source_url = "http://api.worldweatheronline.com/free/v1/weather.ashx?format=json&num_of_days=5&q=".$location."&key=".$api_key;
 		
 		//reset weather log
 //		if (!$this->db->queryExec('DROP TABLE weather_log',$error)) die($error);
