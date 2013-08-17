@@ -9,7 +9,7 @@ include 'app/device.php';
 include 'app/scheduler.php';
 include 'app/weather.php';
 
-$device = new Device($ipaddress, $port);
+$device = new Device($ipaddress, $port, $simulated, $amount_per_min, $num_zones);
 $scheduler = new Scheduler();
 $weather = new Weather($location,$api_key);
 

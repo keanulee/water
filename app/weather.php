@@ -10,13 +10,6 @@ class Weather
 	{
 		$this->db = new SQLiteDatabase('db/data.db');
 		$this->source_url = "http://api.worldweatheronline.com/free/v1/weather.ashx?format=json&num_of_days=5&q=".$location."&key=".$api_key;
-		
-		//reset weather log
-//		if (!$this->db->queryExec('DROP TABLE weather_log',$error)) die($error);
-//		if (!$this->db->queryExec('CREATE TABLE weather_log (date INTEGER PRIMARY KEY, precipMM REAL, temp_C INTEGER, weatherDesc TEXT, weatherCode INTEGER, weatherIconUrl TEXT);',$error)) die($error);
-//		if (!$this->db->queryExec('DROP TABLE current_condition',$error)) die($error);
-//		if (!$this->db->queryExec('CREATE TABLE current_condition (precipMM REAL, temp_C INTEGER, weatherDesc TEXT, weatherCode INTEGER, weatherIconUrl TEXT);',$error)) die($error);
-//		if (!$this->db->queryExec('INSERT INTO current_condition VALUES (0, 0, "", 0, "");',$error)) die($error);		
 	}
 	
 	//closes database

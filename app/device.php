@@ -8,71 +8,72 @@ class Device
 	private $amount_per_min;
 	private $num_zones;
 	private $status;
+	private $simulated;
 	
 	//authenticates with device and gets its status. opens database
-	public function __construct($ipaddress, $port)
+	public function __construct($ipaddress, $port, $simulated, $amount_per_min, $num_zones)
 	{
 		$this->db = new SQLiteDatabase('db/data.db');
 		$this->ipaddress = $ipaddress;
 		$this->port = $port;
-		$this->amount_per_min = 0.635;
-		$this->num_zones = 2;
+		$this->simulated = $simulated;
+		$this->amount_per_min = $amount_per_min;
+		$this->num_zones = $num_zones;
 		
-		$attempts = 3;
-		for ($i=0; $i<$attempts; $i++)
-		{
-			$ch = curl_init(); 
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); 
-
-			curl_setopt($ch, CURLOPT_URL, 'http://'.$this->ipaddress.':'.$this->port.'/ergetcfg.cgi?lu=admin&lp=pw');
-			curl_exec($ch); 
-
-			curl_setopt($ch, CURLOPT_URL, 'http://'.$this->ipaddress.':'.$this->port.'/result.cgi?xs'); 
-			$output = curl_exec($ch);
-
-			preg_match('/os: .. <br>/', $output, $matches);
-			if ($matches[0]) {
-				$status = $matches[0][4].$matches[0][5];
-				if ($status == "BZ") $this->status = "Currently Watering";
-				else if ($status == "WT") $this->status = "About to water";
-				else if ($status == "RD") $this->status = "Ready";
-				else $this->status = "Unknown";
-
-				break;
-			}
-			else if ($i == ($attempts-1)) {
-				$this->status = "No connection";
+		//device status simulator
+		if ($this->simulated) {
+			$result = $this->db->arrayQuery('SELECT status FROM device_status;');
+			foreach ($result as $row) {
+				if ($row[0] == 2) $this->status = "Currently Watering";
+				if ($row[0] == 1) $this->status = "About to water";
+				if ($row[0] == 0) $this->status = "Ready";
 			}
 		}
 		
-        curl_close($ch);
-		
-		//device status simulator
-//		if (!$this->db->queryExec('DROP TABLE device_status',$error)) die($error);
-//		if (!$this->db->queryExec('CREATE TABLE device_status (status INTEGER);',$error)) die($error);
-//		if (!$this->db->queryExec('INSERT INTO device_status VALUES (0);',$error)) die($error);
-//		$result = $this->db->arrayQuery('SELECT status FROM device_status;');
-//		foreach ($result as $row) {
-//			if ($row[0] == 2) $this->status = "Currently Watering";
-//			if ($row[0] == 1) $this->status = "About to water";
-//			if ($row[0] == 0) $this->status = "Ready";
-//		}
+		else {
+			$attempts = 3;
+			for ($i=0; $i<$attempts; $i++)
+			{
+				$ch = curl_init(); 
+				curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); 
 
-		//reset water log
-//		if (!$this->db->queryExec('DROP TABLE water_log',$error)) die($error);
-//		if (!$this->db->queryExec('CREATE TABLE water_log (date INTEGER, time INTEGER, duration INTEGER);',$error)) die($error);
+				curl_setopt($ch, CURLOPT_URL, 'http://'.$this->ipaddress.':'.$this->port.'/ergetcfg.cgi?lu=admin&lp=pw');
+				curl_exec($ch); 
+
+				curl_setopt($ch, CURLOPT_URL, 'http://'.$this->ipaddress.':'.$this->port.'/result.cgi?xs'); 
+				$output = curl_exec($ch);
+
+				preg_match('/os: .. <br>/', $output, $matches);
+				if ($matches[0]) {
+					$status = $matches[0][4].$matches[0][5];
+					if ($status == "BZ") $this->status = "Currently Watering";
+					else if ($status == "WT") $this->status = "About to water";
+					else if ($status == "RD") $this->status = "Ready";
+					else $this->status = "Unknown";
+
+					break;
+				}
+				else if ($i == ($attempts-1)) {
+					$this->status = "No connection";
+				}
+			}
+			
+			curl_close($ch);
+		}
 	}
 	
 	//closes database
 	public function __destruct() 
 	{
 		//device status simulator
-//		if ($this->status == "Currently Watering")
-//			if (!$this->db->queryExec('UPDATE device_status SET status = 2;',$error)) die($error);
-//		if ($this->status == "About to water")
-//			if (!$this->db->queryExec('UPDATE device_status SET status = 1;',$error)) die($error);
-//		if ($this->status == "Ready")
-//			if (!$this->db->queryExec('UPDATE device_status SET status = 0;',$error)) die($error);
+		if ($this->simulated) {
+			if ($this->status == "Currently Watering")
+				if (!$this->db->queryExec('UPDATE device_status SET status = 2;',$error)) die($error);
+			if ($this->status == "About to water")
+				if (!$this->db->queryExec('UPDATE device_status SET status = 1;',$error)) die($error);
+			if ($this->status == "Ready")
+				if (!$this->db->queryExec('UPDATE device_status SET status = 0;',$error)) die($error);
+		}
 
 		//Delete weather logs older than a week
 		if (!$this->db->queryExec('DELETE FROM water_log WHERE date < '.date("Ymd",time()-(60*60*24*7)).';',$error)) die($error);
@@ -91,8 +92,10 @@ class Device
         curl_close($ch);
 		
 		//device status simulator
-//		if ($delay) $this->status = "About to water";
-//		else $this->status = "Currently Watering";
+		if ($this->simulated) {
+			if ($delay) $this->status = "About to water";
+			else $this->status = "Currently Watering";
+		}
 		
 		$this->addToWaterLog(time()+$delay*60, $duration);
 	}
@@ -108,7 +111,9 @@ class Device
         curl_close($ch);
 		
 		//device status simulator
-//		$this->status = "Ready";
+		if ($this->simulated) {
+			$this->status = "Ready";
+		}
 		
 		$this->cleanWaterLog();
 	}

@@ -1,14 +1,17 @@
 <?php
 
-//EtherRain device settings
+// EtherRain device settings
 $ipaddress = "192.168.0.1";
 $port = 8080;
+$simulated = true;
+$amount_per_min = 0.635;
+$num_zones = 2;
 
-//location settings (for time and weather)
+// Location settings (for time and weather)
 $timezone = "America/Edmonton";
 $location = "calgary,canada";
 
-//for worldweatheronline.com
+// For worldweatheronline.com
 $api_key = "get_key_from_worldweatheronline.com";
 
 ?>

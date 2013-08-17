@@ -7,7 +7,7 @@ date_default_timezone_set($timezone);
 include 'app/device.php';
 include 'app/scheduler.php';
 
-$device = new Device($ipaddress, $port);
+$device = new Device($ipaddress, $port, $simulated, $amount_per_min, $num_zones);
 $scheduler = new Scheduler();
 
 if ($_POST['start']) {

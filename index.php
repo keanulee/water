@@ -8,10 +8,9 @@ include 'app/device.php';
 include 'app/scheduler.php';
 include 'app/weather.php';
 
-$device = new Device($ipaddress, $port);
+$device = new Device($ipaddress, $port, $simulated, $amount_per_min, $num_zones);
 $scheduler = new Scheduler();
 $weather = new Weather($location,$api_key);
-
 ?>
 <!doctype html>
 <html>
@@ -58,12 +57,12 @@ $weather = new Weather($location,$api_key);
 			<?php echo $weather->getTemperature(date("Ymd",time() + (60*60*24))); ?>&deg; C<br />
 			<br />
 			
-			<a href="#" onclick="$(this).html('Please wait...');$.get('http://keanulee.com/water/cron.php?update_weather=true', function(data){location.reload()});">Update Weather</a>
+			<a href="#" onclick="$(this).html('Please wait...');$.get('cron.php?update_weather=true', function(data){location.reload()});">Update Weather</a>
 			</div>
 	</div>
 	<div id="past_conditions" class="span6">
 		<div class="well">
-			<table class="table table-striped table-bordered">
+			<table class="table table-bordered">
 				<tr>
 					<?php $daysOfHistory = 4; ?>
 					<?php for ($i = 1-$daysOfHistory; $i <= 0; $i++): ?>

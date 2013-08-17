@@ -10,11 +10,6 @@ class Scheduler
 	{
 		$this->db = new SQLiteDatabase('db/data.db');
 		
-		//reset settings
-//		if (!$this->db->queryExec('DROP TABLE settings',$error)) die($error);
-//		if (!$this->db->queryExec('CREATE TABLE settings (single_duration INTEGER, duration INTEGER, time INTEGER, sunday INTEGER, monday INTEGER, tuesday INTEGER, wednesday INTEGER, thursday INTEGER, friday INTEGER, saturday INTEGER, past_rain INTEGER, past_max_amount INTEGER, past_num_days INTEGER, present_rain INTEGER, future_rain INTEGER, future_num_days INTEGER);',$error)) die($error);
-//		if (!$this->db->queryExec('INSERT INTO settings VALUES (30,20,300,0,1,0,0,1,0,0,0,20,5,1,1,1);',$error)) die($error);
-	
 		$result = $this->db->arrayQuery('SELECT * FROM settings;');
 		
 		foreach ($result as $row) {

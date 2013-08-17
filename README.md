@@ -10,23 +10,25 @@ I have not streamlined the setup process (yet...), but here is a guideline of wh
 
 ## Database
 
-Water uses a SQLite database. I have included a sample DB file in the repository. The database structure can
-be observed by looking at the commented lines in the `app/` directory.
+Water uses a SQLite database. To create the database, run `setup.php`. The database can be reset by deleting `db/data.db` and re-running `setup.php`.
 
 ## Configuration file
 
 In `config.php`:
 
 ```php
-//EtherRain device settings
+// EtherRain device settings
 $ipaddress = "192.168.0.1";
 $port = 8080;
+$simulated = true;
+$amount_per_min = 0.635;
+$num_zones = 2;
 ```
 
-This is the network location of the EtherRain device. It is how the web server will interact with the device
+This includes the network location of the EtherRain device; it is how the web server will interact with the device. You can choose to simulate the device instead of actually triggering a device. Amount per minute is how many mm of water the lawn gets per minute of watering, and number of zones is used to calculate how much watering time is left.
 
 ```php
-//location settings (for time and weather)
+// Location settings (for time and weather)
 $timezone = "America/Edmonton";
 $location = "calgary,canada";
 ```
@@ -34,7 +36,7 @@ $location = "calgary,canada";
 This is the physical location of the EtherRain device. It is used to determine time and weather.
 
 ```php
-//for worldweatheronline.com
+// For worldweatheronline.com
 $api_key = "get_key_from_worldweatheronline.com";
 ```
 

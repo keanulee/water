@@ -3,7 +3,7 @@ body
 	background-image: url(../img/grass.jpg);
 	background-attachment: fixed;
 	background-repeat: repeat;
-    background-size: 250px;
+	background-size: 250px;
 	padding-top: 60px;
 }
 
@@ -11,7 +11,7 @@ div#past_conditions th { width: 20%; }
 
 div#scheduler_options th { width: 14%; }
 
-.well { opacity: 0.95; }
+.well { background-color: rgba(245, 245, 245, 0.9); }
 
 @media (max-width: 767px)
 {
