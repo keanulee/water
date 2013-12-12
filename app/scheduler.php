@@ -8,11 +8,11 @@ class Scheduler
 	//opens database, stores settings locally
 	public function __construct()
 	{
-		$this->db = new SQLiteDatabase('db/data.db');
+		$this->db = new SQLite3('db/data.db');
 		
-		$result = $this->db->arrayQuery('SELECT * FROM settings;');
+		$result = $this->db->query('SELECT * FROM settings;');
 		
-		foreach ($result as $row) {
+		while ($row = $result->fetchArray()) {
 			$this->settings = $row;
 		}
 	}
@@ -20,9 +20,9 @@ class Scheduler
 	//closes database
 	public function __destruct() 
 	{
-		if (!$this->db->queryExec('UPDATE settings SET single_duration = '.(int)$this->settings['single_duration'].', duration = '.(int)$this->settings['duration'].', time = '.(int)$this->settings['time'].', sunday = '.(int)$this->settings['sunday'].', monday = '.(int)$this->settings['monday'].', tuesday = '.(int)$this->settings['tuesday'].', wednesday = '.(int)$this->settings['wednesday'].', thursday = '.(int)$this->settings['thursday'].', friday = '.(int)$this->settings['friday'].', saturday = '.(int)$this->settings['saturday'].', past_rain = '.(int)$this->settings['past_rain'].', past_max_amount = '.(int)$this->settings['past_max_amount'].', past_num_days = '.(int)$this->settings['past_num_days'].', present_rain = '.(int)$this->settings['present_rain'].', future_rain = '.(int)$this->settings['future_rain'].', future_num_days = '.(int)$this->settings['future_num_days'].';',$error)) die($error);
+		if (!$this->db->exec('UPDATE settings SET single_duration = '.(int)$this->settings['single_duration'].', duration = '.(int)$this->settings['duration'].', time = '.(int)$this->settings['time'].', sunday = '.(int)$this->settings['sunday'].', monday = '.(int)$this->settings['monday'].', tuesday = '.(int)$this->settings['tuesday'].', wednesday = '.(int)$this->settings['wednesday'].', thursday = '.(int)$this->settings['thursday'].', friday = '.(int)$this->settings['friday'].', saturday = '.(int)$this->settings['saturday'].', past_rain = '.(int)$this->settings['past_rain'].', past_max_amount = '.(int)$this->settings['past_max_amount'].', past_num_days = '.(int)$this->settings['past_num_days'].', present_rain = '.(int)$this->settings['present_rain'].', future_rain = '.(int)$this->settings['future_rain'].', future_num_days = '.(int)$this->settings['future_num_days'].';')) die($this->db->lastErrorMsg());
 	
-		unset($this->db);
+		$this->db->close();
 	}
 	
 	public function getSetting($setting)

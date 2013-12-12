@@ -13,7 +13,7 @@ class Device
 	//authenticates with device and gets its status. opens database
 	public function __construct($ipaddress, $port, $simulated, $amount_per_min, $num_zones)
 	{
-		$this->db = new SQLiteDatabase('db/data.db');
+		$this->db = new SQLite3('db/data.db');
 		$this->ipaddress = $ipaddress;
 		$this->port = $port;
 		$this->simulated = $simulated;
@@ -22,8 +22,8 @@ class Device
 		
 		//device status simulator
 		if ($this->simulated) {
-			$result = $this->db->arrayQuery('SELECT status FROM device_status;');
-			foreach ($result as $row) {
+			$result = $this->db->query('SELECT status FROM device_status;');
+			while ($row = $result->fetchArray()) {
 				if ($row[0] == 2) $this->status = "Currently Watering";
 				if ($row[0] == 1) $this->status = "About to water";
 				if ($row[0] == 0) $this->status = "Ready";
@@ -68,17 +68,17 @@ class Device
 		//device status simulator
 		if ($this->simulated) {
 			if ($this->status == "Currently Watering")
-				if (!$this->db->queryExec('UPDATE device_status SET status = 2;',$error)) die($error);
+				if (!$this->db->exec('UPDATE device_status SET status = 2;')) die($this->db->lastErrorMsg());
 			if ($this->status == "About to water")
-				if (!$this->db->queryExec('UPDATE device_status SET status = 1;',$error)) die($error);
+				if (!$this->db->exec('UPDATE device_status SET status = 1;')) die($this->db->lastErrorMsg());
 			if ($this->status == "Ready")
-				if (!$this->db->queryExec('UPDATE device_status SET status = 0;',$error)) die($error);
+				if (!$this->db->exec('UPDATE device_status SET status = 0;')) die($this->db->lastErrorMsg());
 		}
 
 		//Delete weather logs older than a week
-		if (!$this->db->queryExec('DELETE FROM water_log WHERE date < '.date("Ymd",time()-(60*60*24*7)).';',$error)) die($error);
+		if (!$this->db->exec('DELETE FROM water_log WHERE date < '.date("Ymd",time()-(60*60*24*7)).';')) die($this->db->lastErrorMsg());
 
-		unset($this->db);
+		$this->db->close();
 	}
 
 	public function runCycle($duration, $delay = 0)
@@ -130,16 +130,16 @@ class Device
 	
 	public function getWateredAmount($date)
 	{
-		$result = $this->db->arrayQuery('SELECT sum(duration) FROM water_log WHERE date = '.$date.';');
-		foreach ($result as $row) {
+		$result = $this->db->query('SELECT sum(duration) FROM water_log WHERE date = '.$date.';');
+		while ($row = $result->fetchArray()) {
 			return round($row[0] * $this->amount_per_min,1);
 		}
 		return 0;
 	}
 	
 	public function getTimeLeft() {
-		$result = $this->db->arrayQuery('SELECT date,time,duration FROM water_log ORDER BY date DESC,time DESC LIMIT 1;');
-		foreach ($result as $row) {
+		$result = $this->db->query('SELECT date,time,duration FROM water_log ORDER BY date DESC,time DESC LIMIT 1;');
+		while ($row = $result->fetchArray()) {
 			$start_time = mktime((int)($row["time"]/100), $row["time"]%100, 0);
 			$end_time = $start_time + $row["duration"]*60*$this->num_zones;
 			return (int)(($end_time-time())/60)+1;
@@ -153,23 +153,23 @@ class Device
 		
 		if (date("Ymd",$end_time) > date('Ymd',$start_time)) {
 			$new_day = mktime(0, 0, 0, date("n",$end_time), date("d",$end_time), date("Y",$end_time));
-			if (!$this->db->queryExec('INSERT INTO water_log VALUES ('.date('Ymd',$start_time).','.date('Gi',$start_time).','.(int)(($new_day-$start_time)/60).');',$error)) die($error);
-			if (!$this->db->queryExec('INSERT INTO water_log VALUES ('.date('Ymd',$end_time).',0,'.(int)(($end_time-$new_day)/60).');',$error)) die($error);
+			if (!$this->db->exec('INSERT INTO water_log VALUES ('.date('Ymd',$start_time).','.date('Gi',$start_time).','.(int)(($new_day-$start_time)/60).');')) die($this->db->lastErrorMsg());
+			if (!$this->db->exec('INSERT INTO water_log VALUES ('.date('Ymd',$end_time).',0,'.(int)(($end_time-$new_day)/60).');')) die($this->db->lastErrorMsg());
 		}
-		else if (!$this->db->queryExec('INSERT INTO water_log VALUES ('.date('Ymd',$start_time).','.date('Gi',$start_time).','.$duration.');',$error)) die($error);
+		else if (!$this->db->exec('INSERT INTO water_log VALUES ('.date('Ymd',$start_time).','.date('Gi',$start_time).','.$duration.');')) die($this->db->lastErrorMsg());
 	}
 	
 	public function cleanWaterLog()
 	{
-		if (!$this->db->queryExec('DELETE FROM water_log WHERE date > '.date("Ymd").';',$error)) die($error);
-		if (!$this->db->queryExec('DELETE FROM water_log WHERE date = '.date("Ymd").' AND time > '.date("Gi").';',$error)) die($error);
+		if (!$this->db->exec('DELETE FROM water_log WHERE date > '.date("Ymd").';')) die($this->db->lastErrorMsg());
+		if (!$this->db->exec('DELETE FROM water_log WHERE date = '.date("Ymd").' AND time > '.date("Gi").';')) die($this->db->lastErrorMsg());
 		
-		$result = $this->db->arrayQuery('SELECT * FROM water_log WHERE date = '.date("Ymd").';');
-		foreach ($result as $row) {
+		$result = $this->db->query('SELECT * FROM water_log WHERE date = '.date("Ymd").';');
+		while ($row = $result->fetchArray()) {
 			$start_time = mktime((int)($row["time"]/100), $row["time"]%100, 0);
 			$end_time = $start_time + $row["duration"]*60*$this->num_zones;
 			if ($end_time > time()) {
-				if (!$this->db->queryExec('DELETE FROM water_log WHERE date = '.$row["date"].' AND time = '.$row["time"].';',$error)) die($error);
+				if (!$this->db->exec('DELETE FROM water_log WHERE date = '.$row["date"].' AND time = '.$row["time"].';')) die($this->db->lastErrorMsg());
 			}
 		}
 	}
